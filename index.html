@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReviseQuick AI - Instant Notes Condenser</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --error-bg: #fef2f2;
+      --error-text: #991b1b;
+      --error-border: #fecaca;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background-color: #e0e7ff;
+      color: #3730a3;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sample-btn {
+      background: none;
+      border: none;
+      color: var(--primary);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: underline;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      padding: 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    .btn-submit {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.85rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 1rem;
+      transition: background-color 0.2s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-submit:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-submit:disabled {
+      background-color: #a5b4fc;
+      cursor: not-allowed;
+    }
+
+    /* Error Box */
+    .error-container {
+      display: none;
+      background-color: var(--error-bg);
+      border: 1px solid var(--error-border);
+      color: var(--error-text);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    /* Loading UI */
+    .loading-container {
+      display: none;
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #e0e7ff;
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Output Section */
+    .output-container {
+      display: none;
+    }
+
+    .output-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .output-header h2 {
+      font-size: 1.25rem;
+      color: var(--text);
+    }
+
+    .btn-copy {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn-copy:hover {
+      background: #e2e8f0;
+    }
+
+    .formatted-content h3 {
+      font-size: 1.1rem;
+      margin-top: 1.2rem;
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+
+    .formatted-content ul {
+      padding-left: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .formatted-content li {
+      margin-bottom: 0.4rem;
+    }
+
+    .formatted-content p {
+      margin-bottom: 0.75rem;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 1rem 0.5rem; }
+      h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <span class="badge">AI Study Assistant</span>
+      <h1>ReviseQuick AI</h1>
+      <p class="subtitle">Turn raw, messy lecture notes into high-yield exam revision material instantly.</p>
+    </header>
+
+    <main>
+      <!-- Input Card -->
+      <div class="card">
+        <div class="form-group">
+          <label for="notesInput">
+            <span>Paste Lecture Notes / Transcript</span>
+            <button type="button" class="sample-btn" onclick="fillSampleNotes()">Try Sample Notes</button>
+          </label>
+          <textarea id="notesInput" placeholder="Paste messy lecture notes, text from slides, or rough scribbles here..."></textarea>
+        </div>
+
+        <button id="generateBtn" class="btn-submit" onclick="generateRevision()">
+          <span>Generate Revision Sheet</span>
+        </button>
+
+        <!-- Error Message Container -->
+        <div id="errorContainer" class="error-container"></div>
+      </div>
+
+      <!-- Loading Indicator -->
+      <div id="loadingContainer" class="loading-container card">
+        <div class="spinner"></div>
+        <p style="font-weight: 600; color: var(--text);">Analyzing notes with Gemini 2.5 Flash...</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Extracting core concepts, bullet points, and revision flashcards.</p>
+      </div>
+
+      <!-- Result Output Card -->
+      <div id="outputContainer" class="output-container card">
+        <div class="output-header">
+          <h2>Exam Revision Material</h2>
+          <button class="btn-copy" onclick="copyResult()">📋 Copy Text</button>
+        </div>
+        <div id="resultContent" class="formatted-content"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const sampleNotesText = `Operating System - Process Scheduling Notes
+Process is program in execution. Lifecycle: New -> Ready -> Running -> Waiting -> Terminated.
+PCB (Process Control Block) stores PID, Program Counter, CPU registers, memory limits.
+Types of Schedulers:
+1. Short-term (CPU scheduler) - selects process from ready queue.
+2. Long-term (Job scheduler) - brings processes from disk to ready queue.
+3. Medium-term - swapping processes between RAM and disk.
+Preemptive vs Non-preemptive scheduling.
+Non-preemptive: process keeps CPU until it terminates or blocks (e.g. FCFS, SJF non-preemptive).
+Preemptive: OS can context switch CPU anytime based on priority or time quantum (e.g., Round Robin, SRTF).
+FCFS suffers from Convoy Effect (short processes waiting for long ones).
+Starvation happens in Priority scheduling (low priority never gets CPU). Solution: Aging (increasing priority over time).`;
+
+    function fillSampleNotes() {
+      document.getElementById('notesInput').value = sampleNotesText;
+    }
+
+    async function generateRevision() {
+      const notesInput = document.getElementById('notesInput');
+      const generateBtn = document.getElementById('generateBtn');
+      const errorContainer = document.getElementById('errorContainer');
+      const loadingContainer = document.getElementById('loadingContainer');
+      const outputContainer = document.getElementById('outputContainer');
+      const resultContent = document.getElementById('resultContent');
+
+      const notes = notesInput.value.trim();
+
+      // Reset states
+      errorContainer.style.display = 'none';
+      errorContainer.innerText = '';
+      outputContainer.style.display = 'none';
+
+      if (!notes) {
+        showError('Please enter or paste your notes before generating revision content.');
+        return;
+      }
+
+      // Set UI loading state
+      generateBtn.disabled = true;
+      generateBtn.innerText = 'Processing...';
+      loadingContainer.style.display = 'block';
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notes })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to process request on server.');
+        }
+
+        // Success: Render output
+        resultContent.innerHTML = data.result;
+        outputContainer.style.display = 'block';
+        outputContainer.scrollIntoView({ behavior: 'smooth' });
+
+      } catch (err) {
+        showError(err.message || 'An unexpected error occurred. Please check your network and try again.');
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.innerText = 'Generate Revision Sheet';
+        loadingContainer.style.display = 'none';
+      }
+    }
+
+    function showError(message) {
+      const errorContainer = document.getElementById('errorContainer');
+      errorContainer.innerText = message;
+      errorContainer.style.display = 'block';
+    }
+
+    function copyResult() {
+      const resultContent = document.getElementById('resultContent');
+      navigator.clipboard.writeText(resultContent.innerText).then(() => {
+        alert('Revision notes copied to clipboard!');
+      }).catch(() => {
+        alert('Failed to copy text. Please select and copy manually.');
+      });
+    }
+  </script>
+</body>
+</html>
